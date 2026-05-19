@@ -40,9 +40,8 @@ class DiffCommand : CliktCommand(name = "diff", help = "Compare test results fro
         val outputFileName = "${firstDir.name}-${secondDir.name}.csv"
         val outputFile = File(outputFileName)
 
-        echo("Comparing test results...")
         CsvDiffer.generateDiff(csv1, csv2, outputFile, firstDir.name, secondDir.name)
 
-        echo("Diff generated: $outputFileName")
+        echo("Generated: ${outputFile.absoluteFile.relativeTo(File(".").absoluteFile)}")
     }
 }

@@ -26,7 +26,6 @@ class ReportCommand : CliktCommand(name = "report", help = "Generate full report
             exitProcess(2)
         }
 
-        echo("Parsing...")
         val outputDir = File(reportsDir, label)
 
         if (outputDir.exists()) {
@@ -42,12 +41,12 @@ class ReportCommand : CliktCommand(name = "report", help = "Generate full report
 
         val results = XmlParser.parseDirectory(outputDir, debug) { msg -> if (debug) echo(msg) }
 
-        echo("Generating CSV...")
-        CsvGenerator.generate(results, File(outputDir, "test-results.csv"))
+        val csvFile = File(outputDir, "test-results.csv")
+        CsvGenerator.generate(results, csvFile)
+        echo("Generated: ${csvFile.absoluteFile.relativeTo(File(".").absoluteFile)}")
 
-        echo("Generating JSON...")
-        JsonGenerator.generate(results, File(outputDir, "test-summary.json"), "test-results.csv")
-
-        echo("Done.")
+        val jsonFile = File(outputDir, "test-summary.json")
+        JsonGenerator.generate(results, jsonFile, "test-results.csv")
+        echo("Generated: ${jsonFile.absoluteFile.relativeTo(File(".").absoluteFile)}")
     }
 }

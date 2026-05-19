@@ -14,12 +14,11 @@ class CsvCommand : CliktCommand(name = "csv", help = "Generate CSV report from T
     override fun run() {
         val debug = (currentContext.parent?.command as? JunitilityCommand)?.debug ?: false
 
-        echo("Parsing...")
         val results = XmlParser.parseDirectory(File(inputDir), debug) { msg -> if (debug) echo(msg) }
 
-        echo("Generating CSV...")
-        CsvGenerator.generate(results, File(outputFile))
+        val csvFile = File(outputFile)
+        CsvGenerator.generate(results, csvFile)
 
-        echo("Done.")
+        echo("Generated: ${csvFile.absoluteFile.relativeTo(File(".").absoluteFile)}")
     }
 }

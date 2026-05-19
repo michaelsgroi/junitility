@@ -17,12 +17,11 @@ class JsonCommand : CliktCommand(name = "json", help = "Generate JSON summary fr
     override fun run() {
         val debug = (currentContext.parent?.command as? JunitilityCommand)?.debug ?: false
 
-        echo("Parsing...")
         val results = XmlParser.parseDirectory(File(inputDir), debug) { msg -> if (debug) echo(msg) }
 
-        echo("Generating JSON...")
-        JsonGenerator.generate(results, File(outputFile), csvPath)
+        val jsonFile = File(outputFile)
+        JsonGenerator.generate(results, jsonFile, csvPath)
 
-        echo("Done.")
+        echo("Generated: ${jsonFile.absoluteFile.relativeTo(File(".").absoluteFile)}")
     }
 }
