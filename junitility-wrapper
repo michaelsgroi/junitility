@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+JAR_FILE="$SCRIPT_DIR/target/junitility.jar"
+
+if [ ! -f "$JAR_FILE" ]; then
+    echo "JAR file not found. Building..."
+    (cd "$SCRIPT_DIR" && mvn clean package -DskipTests)
+fi
+
+exec java -jar "$JAR_FILE" "$@"

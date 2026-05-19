@@ -1,0 +1,14 @@
+#!/bin/bash
+# Wrapper script for junitility. Invokes the built jar.
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
+JAR="$SCRIPT_DIR/target/junitility.jar"
+
+if [ ! -f "$JAR" ]; then
+  echo "Building junitility..." >&2
+  (cd "$SCRIPT_DIR" && mvn -q package -DskipTests)
+fi
+
+exec java -jar "$JAR" "$@"

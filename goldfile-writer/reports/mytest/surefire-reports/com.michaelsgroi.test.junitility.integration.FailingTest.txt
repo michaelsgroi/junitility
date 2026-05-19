@@ -1,0 +1,18 @@
+-------------------------------------------------------------------------------
+Test set: com.michaelsgroi.test.junitility.integration.FailingTest
+-------------------------------------------------------------------------------
+Tests run: 3, Failures: 1, Errors: 1, Skipped: 0, Time elapsed: 0.019 s <<< FAILURE! -- in com.michaelsgroi.test.junitility.integration.FailingTest
+com.michaelsgroi.test.junitility.integration.FailingTest.testThatThrowsError -- Time elapsed: 0.009 s <<< ERROR!
+java.lang.RuntimeException: Intentional error
+	at com.michaelsgroi.test.junitility.integration.FailingTest.testThatThrowsError(FailingTest.kt:12)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+
+com.michaelsgroi.test.junitility.integration.FailingTest.testThatFails -- Time elapsed: 0.001 s <<< FAILURE!
+java.lang.AssertionError: This test is expected to fail
+	at com.michaelsgroi.test.junitility.integration.FailingTest.testThatFails(FailingTest.kt:8)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+
