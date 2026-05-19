@@ -1,6 +1,9 @@
 # Maven build output
 target/
 
+# Generated test reports
+goldfile-writer/reports/
+
 # IDE: IntelliJ IDEA
 .idea/
 *.iml
