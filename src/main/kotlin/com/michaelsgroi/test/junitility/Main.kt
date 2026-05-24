@@ -4,6 +4,7 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
+import com.michaelsgroi.test.junitility.commands.CompareCommand
 import com.michaelsgroi.test.junitility.commands.CsvCommand
 import com.michaelsgroi.test.junitility.commands.DiffCommand
 import com.michaelsgroi.test.junitility.commands.JsonCommand
@@ -17,6 +18,6 @@ class JunitilityCommand : CliktCommand(name = "junitility", help = "JUnit test r
 
 fun main(args: Array<String>) {
     JunitilityCommand()
-        .subcommands(ReportCommand(), CsvCommand(), JsonCommand(), DiffCommand())
+        .subcommands(ReportCommand(), CsvCommand(), JsonCommand(), DiffCommand(), CompareCommand())
         .main(args)
 }

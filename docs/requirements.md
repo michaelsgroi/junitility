@@ -133,6 +133,141 @@ junitility diff reports/baseline reports/current
 - If `<dir2>/test-results.csv` doesn't exist → Exit with error
 - If output file already exists → Overwrite (no prompt needed for diff output)
 
+#### 5. `junitility compare` - Generate net impact reports from test results
+
+Generate comprehensive net impact analysis from baseline and patched test runs, including summary metrics and detailed transition tracking.
+
+**Syntax:** `junitility compare <baseline-dir> <patched-dir> --output <output-dir>`
+
+**Parameters:**
+- `<baseline-dir>` - Directory containing baseline Surefire/Failsafe XML files (required)
+- `<patched-dir>` - Directory containing patched Surefire/Failsafe XML files (required)
+- `--output <dir>` - Output directory for generated reports (required)
+
+**Behavior:**
+1. Validate both directories exist and contain XML files
+2. Parse XML files from baseline directory using existing `XmlParser.parseDirectory()`
+3. Parse XML files from patched directory using existing `XmlParser.parseDirectory()`
+4. Compare test results to determine net changes (implement as `NetImpactGenerator.kt` with `compare()` method)
+5. Generate two output files:
+   - `<output-dir>/pr-impact-summary.md` - Summary markdown with metrics (use `buildString { }`)
+   - `<output-dir>/pr-impact-details.csv` - Detailed CSV with all test comparisons (refactor `CsvGenerator` to extract and reuse RFC 4180 quoting logic)
+
+**Net Change Classification:**
+
+Test transitions are classified as a Kotlin enum with hyphenated uppercase format in CSV output (e.g., "SKIPPED-FIXED", "FAILURE-ERROR"):
+
+| NetChange | Meaning | Notes |
+|-----------|---------|-------|
+| `ADDED` | Test not in baseline, present in patched | |
+| `REMOVED` | Test present in baseline, not in patched | |
+| `FIXED` | Test transitioned from FAILURE/ERROR to SUCCESS | Does not differentiate FAILURE → SUCCESS vs ERROR → SUCCESS; original outcome preserved in BaselineOutcome column |
+| `SKIPPED-FIXED` | Test transitioned from SKIPPED to SUCCESS | |
+| `REGRESSED` | Test transitioned from SUCCESS to FAILURE/ERROR | Does not differentiate SUCCESS → FAILURE vs SUCCESS → ERROR; final outcome preserved in PatchedOutcome column |
+| `FAILURE-ERROR` | Test transitioned from FAILURE to ERROR | |
+| `ERROR-FAILURE` | Test transitioned from ERROR to FAILURE | |
+| `SKIPPED` | Test transitioned from SUCCESS to SKIPPED | |
+| `FAILURE-SKIPPED` | Test transitioned from FAILURE to SKIPPED | |
+| `ERROR-SKIPPED` | Test transitioned from ERROR to SKIPPED | |
+| `SKIPPED-FAILURE` | Test transitioned from SKIPPED to FAILURE | |
+| `SKIPPED-ERROR` | Test transitioned from SKIPPED to ERROR | |
+| `SUCCESS` | Test remained SUCCESS | |
+| `FAILURE` | Test remained FAILURE | |
+| `ERROR` | Test remained ERROR | |
+| `SKIPPED` | Test remained SKIPPED | CSV output uses "SKIPPED" (not "SKIPPED-SKIPPED") for tests that remained skipped |
+
+**Summary Metrics:**
+
+The summary includes counts for:
+- Total tests (baseline, patched, delta)
+- Success counts (baseline, patched, delta)
+- Failure counts (baseline, patched, delta)
+- Error counts (baseline, patched, delta)
+- Skipped counts (baseline, patched, delta)
+- Fixed tests (FAILURE/ERROR → SUCCESS, excludes SKIPPED-FIXED)
+- Unskipped-Fixed tests (SKIPPED → SUCCESS)
+- Added tests (new in patched)
+- Newly unskipped tests (SKIPPED → non-SKIPPED, includes SKIPPED → SUCCESS/FAILURE/ERROR)
+- Regressed tests (SUCCESS → FAILURE/ERROR, covers both transitions)
+- Newly skipped tests (non-SKIPPED → SKIPPED, includes SUCCESS/FAILURE/ERROR → SKIPPED)
+- Removed tests (removed from patched)
+
+**Output Format - Summary Markdown:**
+
+Format deltas with "+" prefix for positive numbers, "-" for negative, "0" for zero. Include single blank line after each metric section. Left-aligned text format.
+
+```markdown
+# PR Impact Summary
+
+**Total Tests:**  
+Baseline: 100 | Patched: 101 | Delta: +1
+
+**Success:**  
+Baseline: 85 | Patched: 88 | Delta: +3
+
+**Failures:**  
+Baseline: 10 | Patched: 8 | Delta: -2
+
+**Errors:**  
+Baseline: 3 | Patched: 3 | Delta: 0
+
+**Skipped:**  
+Baseline: 2 | Patched: 2 | Delta: 0
+
+**Fixed Tests:** 3  
+**Unskipped-Fixed Tests:** 1  
+**Added Tests:** 1  
+**Newly Unskipped Tests:** 0  
+**Regressed Tests:** 0  
+**Newly Skipped Tests:** 0  
+**Removed Tests:** 0
+```
+
+**Output Format - Detailed CSV:**
+
+Sort rows by ClassName then MethodName (alphabetical). Use RFC 4180 quoting (reuse logic from CsvGenerator). Use "-" for missing outcomes. NetChange values use uppercase with hyphens (e.g., "SKIPPED-FIXED").
+
+```csv
+ClassName,MethodName,BaselineOutcome,PatchedOutcome,NetChange
+com.example.Test1,test1(),FAILURE,SUCCESS,FIXED
+com.example.Test2,test2(),SUCCESS,FAILURE,REGRESSED
+com.example.Test3,test3(),-,SUCCESS,ADDED
+com.example.Test4,test4(),SUCCESS,-,REMOVED
+com.example.Test5,test5(),SUCCESS,SUCCESS,SUCCESS
+```
+
+**Example:**
+```bash
+junitility compare target/surefire-reports baseline/surefire-reports --output reports/pr-impact
+# Creates:
+#   reports/pr-impact/pr-impact-summary.md
+#   reports/pr-impact/pr-impact-details.csv
+
+# Output shows:
+# Generated: reports/pr-impact/pr-impact-summary.md
+# Generated: reports/pr-impact/pr-impact-details.csv
+```
+
+**Error Handling:**
+- If baseline directory doesn't exist or is not a directory → Exit with error
+- If patched directory doesn't exist or is not a directory → Exit with error
+- If baseline directory contains no XML files → Exit with error
+- If patched directory contains no XML files → Exit with error
+- If `--output` is not specified → Exit with error
+- If output directory already exists → Delete and recreate (no prompt needed)
+- If XML parsing fails → Exit with error
+
+**Relationship to `diff` Command:**
+
+The `compare` command is a more sophisticated version of `diff`:
+- `diff` works with existing CSV files and produces a simple side-by-side comparison (4 columns)
+- `compare` works with raw XML files only (no CSV fallback), produces rich NetChange analysis and summary metrics (5 columns)
+- Use `diff` for quick CSV-based comparisons
+- Use `compare` for comprehensive impact analysis with classifications and summaries
+- Commands are not cross-compatible (different schemas)
+- `compare` always generates both markdown and CSV outputs (no flags to skip)
+- `compare` supports only 2 directories (baseline vs patched)
+
 ### Input
 - **Input Directory** - Directory containing Surefire/Failsafe XML report files
   - Contains `TEST-*.xml` files generated by Maven Surefire/Failsafe plugins
@@ -330,6 +465,8 @@ All code written in Kotlin.
   - `junitility report` - Full workflow (copy + CSV + JSON)
   - `junitility csv` - Generate CSV only
   - `junitility json` - Generate JSON only
+  - `junitility diff` - Compare test results from two directories
+  - `junitility compare` - Generate net impact reports with summary metrics
 
 ### Code Organization
 

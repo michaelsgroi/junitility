@@ -12,10 +12,12 @@ object CsvGenerator {
         try {
             outputFile.parentFile?.mkdirs()
             outputFile.bufferedWriter().use { writer ->
-                writer.write("ClassName,MethodName,Outcome\n")
+                writer.write(CsvQuoting.writeCsvRow(listOf("ClassName", "MethodName", "Outcome")))
                 for (result in results) {
                     writer.write(
-                        "${quoteCsvField(result.className)},${quoteCsvField(result.methodName)},${result.outcome}\n",
+                        CsvQuoting.writeCsvRow(
+                            listOf(result.className, result.methodName, result.outcome.toString()),
+                        ),
                     )
                 }
             }
@@ -23,12 +25,5 @@ object CsvGenerator {
             System.err.println("Error writing CSV to ${outputFile.path}: ${e.message}")
             exitProcess(3)
         }
-    }
-
-    private fun quoteCsvField(field: String): String {
-        if (field.contains(',') || field.contains('"') || field.contains('\n')) {
-            return "\"${field.replace("\"", "\"\"")}\""
-        }
-        return field
     }
 }
