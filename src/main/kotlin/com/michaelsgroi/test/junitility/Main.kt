@@ -9,6 +9,7 @@ import com.michaelsgroi.test.junitility.commands.CsvCommand
 import com.michaelsgroi.test.junitility.commands.DiffCommand
 import com.michaelsgroi.test.junitility.commands.JsonCommand
 import com.michaelsgroi.test.junitility.commands.ReportCommand
+import com.michaelsgroi.test.junitility.commands.WatchCommand
 
 class JunitilityCommand : CliktCommand(name = "junitility", help = "JUnit test report utilities") {
     val debug by option("--debug", help = "Enable debug output").flag(default = false)
@@ -18,6 +19,6 @@ class JunitilityCommand : CliktCommand(name = "junitility", help = "JUnit test r
 
 fun main(args: Array<String>) {
     JunitilityCommand()
-        .subcommands(ReportCommand(), CsvCommand(), JsonCommand(), DiffCommand(), CompareCommand())
+        .subcommands(ReportCommand(), CsvCommand(), JsonCommand(), DiffCommand(), CompareCommand(), WatchCommand())
         .main(args)
 }

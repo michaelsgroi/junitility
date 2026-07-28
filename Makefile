@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: all build test install uninstall checks spotless-check format-apply cpd-check clean generate-gold
+.PHONY: all build test install uninstall checks spotless-check format-apply cpd-check clean generate-gold watch
 
 # Default target: build + run tests.
 all: test
@@ -52,3 +52,11 @@ cpd-check:
 
 clean:
 	mvn clean
+
+# Watch a live surefire run using native watch(1) for clean screen refresh
+# Usage: make watch REPORTS_DIR=/path/to/surefire-reports [TOTAL_TESTS=<n>]
+watch: build
+	@watch -n 2 java -cp $(CURDIR)/target/junitility.jar com.michaelsgroi.test.junitility.SurefireWatcherKt \
+	  --reports-dir="$(REPORTS_DIR)" \
+	  $(if $(TOTAL_TESTS),--total-tests=$(TOTAL_TESTS),) \
+	  --once
