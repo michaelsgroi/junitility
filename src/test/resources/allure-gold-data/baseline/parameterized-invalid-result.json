@@ -1,0 +1,5 @@
+{
+  "fullName": "com.example.TenantTest.rejectsTenantId",
+  "name": "rejectsTenantId(TenantIdShapeCase) rejects invalid shape",
+  "status": "passed"
+}

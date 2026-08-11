@@ -4,4 +4,5 @@ data class TestResult(
     val className: String,
     val methodName: String,
     val outcome: Outcome,
+    val comparisonIdentity: String? = null,
 )

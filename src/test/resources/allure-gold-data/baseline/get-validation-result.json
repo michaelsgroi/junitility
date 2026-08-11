@@ -1,0 +1,5 @@
+{
+  "fullName": "com.example.item.GetItemConformanceTest$Validation.rejectsWrongShapeTenantId",
+  "name": "rejectsWrongShapeTenantId(TenantIdShapeCase) rejects missing active type",
+  "status": "failed"
+}

@@ -1,0 +1,11 @@
+{
+  "fullName": "com.example.DeleteItemTest.rejectKeyAttributeTypeMismatch",
+  "labels": [
+    {
+      "name": "junit.platform.uniqueid",
+      "value": "[engine:junit-jupiter]/[class:com.example.DeleteItemTest]/[test-template:rejectKeyAttributeTypeMismatch(com.example.KeyTypeMismatchCase)]/[test-template-invocation:#1]"
+    }
+  ],
+  "name": "rejectKeyAttributeTypeMismatch(KeyTypeMismatchCase) Binary value [B@patched",
+  "status": "passed"
+}

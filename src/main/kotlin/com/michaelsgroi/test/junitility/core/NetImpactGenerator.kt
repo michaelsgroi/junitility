@@ -14,20 +14,22 @@ object NetImpactGenerator {
         baseline: List<TestResult>,
         patched: List<TestResult>,
     ): NetImpact {
-        val baselineMap = baseline.associate { TestKey(it.className, it.methodName) to it.outcome }
-        val patchedMap = patched.associate { TestKey(it.className, it.methodName) to it.outcome }
+        val baselineMap = baseline.associateBy { TestKey(it.className, it.comparisonIdentity ?: it.methodName) }
+        val patchedMap = patched.associateBy { TestKey(it.className, it.comparisonIdentity ?: it.methodName) }
 
         val allKeys = (baselineMap.keys + patchedMap.keys).toSet()
 
         val comparisons =
             allKeys.map { key ->
-                val baselineOutcome = baselineMap[key]
-                val patchedOutcome = patchedMap[key]
+                val baselineResult = baselineMap[key]
+                val patchedResult = patchedMap[key]
+                val baselineOutcome = baselineResult?.outcome
+                val patchedOutcome = patchedResult?.outcome
                 val netChange = determineNetChange(baselineOutcome, patchedOutcome)
 
                 TestComparison(
                     className = key.className,
-                    methodName = key.methodName,
+                    methodName = baselineResult?.methodName ?: patchedResult!!.methodName,
                     baselineOutcome = baselineOutcome,
                     patchedOutcome = patchedOutcome,
                     netChange = netChange,

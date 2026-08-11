@@ -8,12 +8,12 @@ import com.michaelsgroi.test.junitility.JunitilityCommand
 import com.michaelsgroi.test.junitility.core.CsvGenerator
 import com.michaelsgroi.test.junitility.core.FileUtils
 import com.michaelsgroi.test.junitility.core.JsonGenerator
-import com.michaelsgroi.test.junitility.core.XmlParser
+import com.michaelsgroi.test.junitility.core.TestResultsParser
 import java.io.File
 import kotlin.system.exitProcess
 
 class ReportCommand : CliktCommand(name = "report", help = "Generate full report (copy files + CSV + JSON)") {
-    private val inputDir by argument(help = "Directory containing TEST-*.xml files")
+    private val inputDir by argument(help = "Directory containing Surefire/Failsafe XML or Allure results")
     private val label by argument(help = "Label for this test run (used as subdirectory name)")
     private val reportsDir by option("--reports-dir", help = "Output directory").default("reports")
 
@@ -39,7 +39,7 @@ class ReportCommand : CliktCommand(name = "report", help = "Generate full report
         if (debug) echo("Copying ${input.path} to ${outputDir.path}")
         FileUtils.copyDirectory(input, outputDir)
 
-        val results = XmlParser.parseDirectory(outputDir, debug) { msg -> if (debug) echo(msg) }
+        val results = TestResultsParser.parseDirectory(outputDir, debug = debug) { msg -> if (debug) echo(msg) }
 
         val csvFile = File(outputDir, "test-results.csv")
         CsvGenerator.generate(results, csvFile)
